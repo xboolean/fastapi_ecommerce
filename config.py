@@ -1,5 +1,7 @@
 from pydantic import BaseSettings
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class Settings(BaseSettings):
     env_name: str = "Local"

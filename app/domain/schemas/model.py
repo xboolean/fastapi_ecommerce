@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from itertools import product
 
 @dataclass
 class Product:
@@ -19,6 +20,12 @@ class ProductUnit:
     is_active: bool
 
 @dataclass
+class InStock:
+    product_unit_id: int
+    units_remain: int
+    units_sold: int
+
+@dataclass
 class Brand:
     name: str
 
@@ -31,5 +38,9 @@ class Media:
     product_id: int
     img_url: str
     alt_text: str
+
+@dataclass
+class Order:
+    pass
 
 

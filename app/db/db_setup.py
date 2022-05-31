@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from app.domain.schemas.model import Product, ProductUnit, Brand, Category, Media
+from app.domain.schemas.model import Product, ProductUnit, Brand, Category, Media, Order
 from sqlalchemy.orm import sessionmaker, selectinload
 from config import get_settings
 from app.db.models.catalog import mapper_registry 
@@ -12,7 +12,10 @@ Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 session = Session()
 
-# with Session.begin() as session:
-for row in session.execute(select(Product).options(selectinload(Product.product_units))).scalars():
-    print(row.product_units)
-    
+
+with Session.begin() as session:
+    session.add_all(
+        [
+            Order(),
+        ]
+    )

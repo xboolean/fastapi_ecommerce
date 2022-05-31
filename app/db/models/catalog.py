@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from unicodedata import category
 from sqlalchemy import Column, ForeignKey, Integer, String, Table, Boolean, SmallInteger
-from sqlalchemy.orm import registry, relationship
+from sqlalchemy.orm import registry, relationship, backref
 from app.domain.schemas import model
 
 mapper_registry = registry()
@@ -29,21 +29,28 @@ product_unit_table = Table(
         Column("is_active", Boolean)
     )
 
-# product_on_order_table = Table(
-#         "products_on_order",
-#         mapper_registry.metadata,
-#         Column("product_id", ForeignKey("product_units.id")),
-#         Column("order_id", ForeignKey("order.id")),
-# )
+products_on_order_table = Table(
+        "products_on_order",
+        mapper_registry.metadata,
+        Column("product_id", ForeignKey("product_unit.id"), primary_key=True),
+        Column("order_id", ForeignKey("orders.id"), primary_key=True),
+        Column("qty", Integer)
+)
 
-# in_stock_table = Table(
-#         "in_stock",
-#         mapper_registry.metadata,
-#         Column("id", Integer, primary_key=True, autoincrement=True),
-#         Column("product", Integer, primary_key=True, autoincrement=True),
-#         Column("units_remain", SmallInteger),
-#         Column("units_sold", SmallInteger),
-#     )
+order_table = Table(
+        "orders",
+        mapper_registry.metadata,
+        Column("id", Integer, primary_key=True, autoincrement=True),
+)
+
+in_stock_table = Table(
+        "product_unit_qty",
+        mapper_registry.metadata,
+        Column("id", Integer, primary_key=True, autoincrement=True),
+        Column("product_unit_id", Integer, ForeignKey("product_unit.id")),
+        Column("units_remain", SmallInteger),
+        Column("units_sold", SmallInteger),
+    )
 
 media_table = Table(
         "product_media",
@@ -78,4 +85,8 @@ mapper_registry.map_imperatively(model.Brand, brand_table, properties={"products
 mapper_registry.map_imperatively(model.Category, category_table, properties={"products": relationship(model.Product, backref="category")})
 
 mapper_registry.map_imperatively(model.Media, media_table, properties={"products": relationship(model.ProductUnit, backref="media")})
+
+mapper_registry.map_imperatively(model.InStock, in_stock_table, properties={"product_unit": relationship(model.ProductUnit, backref=backref("quantity", uselist=False))})
+
+mapper_registry.map_imperatively(model.Order, order_table, properties={"order_units": relationship(model.ProductUnit, secondary=products_on_order_table, backref="order")})
 
