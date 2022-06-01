@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from unicodedata import category
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, Boolean, SmallInteger
-from sqlalchemy.orm import registry, relationship, backref
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, Boolean, SmallInteger, Enum
+from sqlalchemy.orm import relationship, backref
 from app.domain.schemas import model
+from sqlalchemy.orm import registry
+import enum
 
 mapper_registry = registry()
 
@@ -29,6 +31,8 @@ product_unit_table = Table(
         Column("is_active", Boolean)
     )
 
+
+
 products_on_order_table = Table(
         "products_on_order",
         mapper_registry.metadata,
@@ -37,10 +41,17 @@ products_on_order_table = Table(
         Column("qty", Integer)
 )
 
+class OrderStatus(enum.IntEnum):
+    gathering = 1
+    shipping = 2
+    shipped = 3
+
 order_table = Table(
         "orders",
         mapper_registry.metadata,
         Column("id", Integer, primary_key=True, autoincrement=True),
+        Column("order_price", Integer),
+        Column("order_status", Enum(OrderStatus)),
 )
 
 in_stock_table = Table(
